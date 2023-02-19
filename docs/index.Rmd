@@ -1,8 +1,14 @@
 ---
 title: "Project"
-author: "Avishek Saha"
+author: "Avishek & Noman"
 date: '2023-02-19'
-output: html_document
+output:
+  html_document:
+    fig_caption: yes
+    theme: cerulean
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
 ---
 
 ```{r setup, include=FALSE}
