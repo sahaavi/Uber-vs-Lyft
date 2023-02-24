@@ -1,0 +1,51 @@
+---
+title: "Exploratory Data Analysis"
+author: "Avishek Saha"
+date: '2023-02-24'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Loading the datasets
+
+```{r}
+rides <-read.csv("datasets/cab_rides.csv")
+weather <- read.csv("datasets/weather.csv")
+```
+
+### Exploring the datasets
+
+```{r}
+head(rides, 3)
+```
+
+```{r}
+head(weather, 3)
+```
+
+
+```{r}
+library(dplyr)
+
+# Group the data by cab_type, time_stamp, destination, and source
+grouped_data <- rides %>% 
+  group_by(cab_type, time_stamp, destination, source) %>% 
+  summarise(n_rows = n())
+
+# Filter the groups with more than one row
+duplicates <- grouped_data %>% 
+  filter(n_rows > 1)
+
+# Print the duplicated rows
+print(duplicates)
+
+```
+
+
+
+
+
+
