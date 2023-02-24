@@ -1,0 +1,47 @@
+---
+title: "cab_weather_dataclean"
+author: "Noman Mohammad"
+date: "2023-02-24"
+output: html_document
+---
+
+```{r}
+library(dplyr)
+library(lubridate)
+library(tidyr)
+
+cab <- read.csv('cab_rides.csv')
+weather <- read.csv('weather.csv')
+
+head(weather)
+head(cab)
+
+cab$time_stamp <- format(as.POSIXct(cab$time_stamp/1000, origin = "1970-01-01"), "%Y-%m-%d %H:%M:%S")
+weather$time_stamp <- format(as.POSIXct(weather$time_stamp, origin = "1970-01-01"), "%Y-%m-%d %H:%M:%S")
+
+cab$time_stamp <- ymd_hms(cab$time_stamp)
+weather$time_stamp <- ymd_hms(weather$time_stamp)
+
+#sort by time
+cab <- cab %>% 
+  arrange(time_stamp)
+
+weather <- weather %>% 
+  arrange(time_stamp)
+
+#new column for merge
+cab <- cab %>% 
+  mutate(date_hour_location = paste(format(time_stamp, "%m-%d_%H"), "_", source))
+
+weather <- weather %>% 
+  mutate(date_hour_location = paste(format(time_stamp, "%m-%d_%H"), "_", location))
+
+weather <- weather %>% distinct(date_hour_location, .keep_all = TRUE)
+
+cab_weather <- left_join(cab, weather, by = "date_hour_location")
+```
+
+```{r}
+nrow(cab_weather)
+head(cab_weather)
+```
