@@ -26,6 +26,22 @@ head(rides, 3)
 head(weather, 3)
 ```
 
+```{r}
+unique(rides$cab_type)
+```
+
+```{r}
+sort(unique(rides$distance))
+```
+
+```{r}
+unique(rides$name)
+```
+
+```{r}
+sort(unique(rides$price))
+```
+
 
 ```{r}
 library(dplyr)
@@ -43,9 +59,3 @@ duplicates <- grouped_data %>%
 print(duplicates)
 
 ```
-
-
-
-
-
-

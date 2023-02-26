@@ -1,28 +1,21 @@
 ---
-title: "Uber vs Lyft"
-author: "Avishek & Noman"
-output:
-  html_document:
-    fig_caption: yes
-    theme: cerulean
-    toc: yes
-    toc_depth: 3
-    toc_float: yes
+title: "Data Proposal"
+author: "Avishek Saha and Noman Mohammad"
+output: pdf_document
+fontsize: 10pt
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Data Proposal
-
 The data for this project was uploaded to [kaggle](https://www.kaggle.com/datasets/ravi72munde/uber-lyft-cab-prices) by the user RaviMunde and licensed under CC0: Public Domain, which allows for unrestricted use and distribution of the data. The data set we are analyzing includes simulated ride prices for Uber and Lyft, which were obtained through custom application queries collected using their respective API's. In parallel, additional data was also collected for weather conditions corresponding to the source destination for the cab rides. The data was collected for the interval from 2018-11-25 to 2018-12-18. A custom application was built in Scala to query data at regular intervals of 5 minutes for cab ride estimates and 1 hour for weather data. The data was then saved to DynamoDB. The chosen interval was to query as much data as possible without unnecessary redundancy. Finally, the data collected is stored into two separate CSV files: cab_rides.csv and weather.csv
 
 ### Statistical Description
 
 ```{r, echo=FALSE}
-cab_rides <- read.csv('../datasets/cab_rides.csv')
-weather <- read.csv('../datasets/weather.csv')
+cab_rides <- read.csv('datasets/cab_rides.csv')
+weather <- read.csv('datasets/weather.csv')
 ```
 
 The cab_rides.csv consists of 10 variables and 693,071 rows:  
@@ -74,8 +67,3 @@ Using a combination of exploratory data analysis and creating predictive models,
 3. How can we predict the surge pricing multiplier for Uber and Lyft rides in Boston, taking into account various variables such as time of day, day of the week, and weather conditions? What are the key factors driving the variation in surge pricing among these ride-sharing services in Boston?
 
 4. To what extent do the source and destination locations impact the cab prices in Boston, after controlling for factors such as distance and weather conditions? Can we identify any specific locations or geographic patterns that have a significant impact on cab prices in the city? How do these factors vary between Uber and Lyft?
-
-# Exploratory Analysis
-
-
-# Project Report
