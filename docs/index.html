@@ -11,9 +11,8 @@
 
 <meta name="author" content="Avishek &amp; Noman" />
 
-<meta name="date" content="2023-02-19" />
 
-<title>Project</title>
+<title>Uber vs Lyft</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1373,23 +1372,17 @@ overflow-y: auto;
 border: 1px solid #ddd;
 border-radius: 4px;
 }
-.tabset-dropdown > .nav-tabs > li.active:before {
-content: "";
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+content: "\e259";
 font-family: 'Glyphicons Halflings';
 display: inline-block;
 padding: 10px;
 border-right: 1px solid #ddd;
 }
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-content: "";
-border: none;
-}
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-content: "";
+content: "\e258";
 font-family: 'Glyphicons Halflings';
-display: inline-block;
-padding: 10px;
-border-right: 1px solid #ddd;
+border: none;
 }
 .tabset-dropdown > .nav-tabs > li.active {
 display: block;
@@ -1491,15 +1484,133 @@ border-radius: 0px;
 
 
 
-<h1 class="title toc-ignore">Project</h1>
+<h1 class="title toc-ignore">Uber vs Lyft</h1>
 <h4 class="author">Avishek &amp; Noman</h4>
-<h4 class="date">2023-02-19</h4>
 
 </div>
 
 
 <div id="data-proposal" class="section level1">
 <h1>Data Proposal</h1>
+<p>The data for this project was uploaded to <a href="https://www.kaggle.com/datasets/ravi72munde/uber-lyft-cab-prices">kaggle</a>
+by the user RaviMunde and licensed under CC0: Public Domain, which
+allows for unrestricted use and distribution of the data. The data set
+we are analyzing includes simulated ride prices for Uber and Lyft, which
+were obtained through custom application queries collected using their
+respective API’s. In parallel, additional data was also collected for
+weather conditions corresponding to the source destination for the cab
+rides. The data was collected for the interval from 2018-11-25 to
+2018-12-18. A custom application was built in Scala to query data at
+regular intervals of 5 minutes for cab ride estimates and 1 hour for
+weather data. The data was then saved to DynamoDB. The chosen interval
+was to query as much data as possible without unnecessary redundancy.
+Finally, the data collected is stored into two separate CSV files:
+cab_rides.csv and weather.csv</p>
+<div id="statistical-description" class="section level2">
+<h2>Statistical Description</h2>
+<p>The cab_rides.csv consists of 10 variables and 693,071 rows:<br />
+- <code>cab_type</code>(String): Represents the type of ride sharing
+service used, such as Uber or Lyft.<br />
+- <code>destination</code>(String): Drop off location of the ride.<br />
+- <code>distance</code>(Float): Distance traveled from the pickup
+location to the drop off location in miles.<br />
+- <code>id</code>(String): An unique identifier for each ride.<br />
+- <code>name</code>(String): Type of cab used, such as Lyft XL or
+UberX.<br />
+- <code>price</code>(Float): Cost of the ride in US dollars.<br />
+- <code>product_id</code>(String): An unique identifier for
+cab-type.<br />
+- <code>source</code>(String): Pickup location of the ride.<br />
+- <code>surge_multiplier</code>(String): How much the ride price was
+multiplied based on current ride demand. Default
+<code>surge_multiplier</code> is 1.<br />
+- <code>time_stamp</code>(Long): Time of the ride as an epoch time stamp
+in seconds.</p>
+<p><strong>Summary of the cab_rides dataset</strong></p>
+<pre><code>##     distance       time_stamp            price       surge_multiplier
+##  Min.   :0.020   Min.   :1.543e+12   Min.   : 2.50   Min.   :1.000   
+##  1st Qu.:1.280   1st Qu.:1.543e+12   1st Qu.: 9.00   1st Qu.:1.000   
+##  Median :2.160   Median :1.544e+12   Median :13.50   Median :1.000   
+##  Mean   :2.189   Mean   :1.544e+12   Mean   :16.55   Mean   :1.014   
+##  3rd Qu.:2.920   3rd Qu.:1.545e+12   3rd Qu.:22.50   3rd Qu.:1.000   
+##  Max.   :7.860   Max.   :1.545e+12   Max.   :97.50   Max.   :3.000   
+##                                      NA&#39;s   :55095</code></pre>
+<p>The weather.csv consists of 8 variables and 6276 rows:<br />
+- <code>clouds</code>(Float): Percentage of cloud cover in the sky at
+the time the weather was recorded.<br />
+- <code>humidity</code>(Float): Percentage of humidity in the air at the
+time the weather was recorded.<br />
+- <code>time_stamp</code>(Float): Time when the weather was recorded, as
+an epoch time stamp in seconds.<br />
+- <code>location</code>(String): Location where the weather was
+recorded.<br />
+- <code>temp</code>(String): Temperature in Fahrenheit at the time the
+weather was recorded.<br />
+- <code>pressure</code>(Float): Air pressure in millibars at the time
+the weather was recorded.<br />
+- <code>wind</code>(Float): Wind speed in miles per hour at the time the
+weather was recorded.<br />
+- <code>rain</code>(Float): Amount of rain in inches for the last hour
+at the time the weather was recorded.</p>
+<p><strong>Summary of the weather dataset</strong></p>
+<pre><code>##       temp           clouds          pressure           rain      
+##  Min.   :19.62   Min.   :0.0000   Min.   : 988.2   Min.   :0.000  
+##  1st Qu.:36.08   1st Qu.:0.4400   1st Qu.: 997.7   1st Qu.:0.005  
+##  Median :40.13   Median :0.7800   Median :1007.7   Median :0.015  
+##  Mean   :39.09   Mean   :0.6778   Mean   :1008.4   Mean   :0.058  
+##  3rd Qu.:42.83   3rd Qu.:0.9700   3rd Qu.:1018.5   3rd Qu.:0.061  
+##  Max.   :55.41   Max.   :1.0000   Max.   :1035.1   Max.   :0.781  
+##                                                    NA&#39;s   :5382   
+##    time_stamp           humidity          wind       
+##  Min.   :1.543e+09   Min.   :0.450   Min.   : 0.290  
+##  1st Qu.:1.543e+09   1st Qu.:0.670   1st Qu.: 3.518  
+##  Median :1.544e+09   Median :0.760   Median : 6.570  
+##  Mean   :1.544e+09   Mean   :0.764   Mean   : 6.803  
+##  3rd Qu.:1.545e+09   3rd Qu.:0.890   3rd Qu.: 9.920  
+##  Max.   :1.545e+09   Max.   :0.990   Max.   :18.180  
+## </code></pre>
+<p>It is worth noting that the data obtained through simulation may have
+certain limitations and scientific methods underlying it. Since the data
+was simulated, there is a possibility that it only provides a partial
+representation of the actual demand and supply for rides during the time
+period under consideration. This is because the simulated data may not
+accurately capture the usage and demand patterns for ride-sharing
+services across all areas in Boston. Furthermore, human behavior such as
+commuting patterns, differences in travel patterns between weekdays and
+weekends, and responses to weather conditions, which heavily influence
+the demand for ride-sharing services, may affect the accuracy of
+hypotheses based on locations. Another aspect to consider is that since
+the actual source and destination of rides are not known due to the
+simulated nature of the data, it may limit insight regarding
+location-based patterns.</p>
+</div>
+<div id="hypothesis" class="section level2">
+<h2>Hypothesis</h2>
+<p>Using a combination of exploratory data analysis and creating
+predictive models, we want to address a number of scientific questions
+regarding ride-sharing services like Uber and Lyft in Boston.</p>
+<ol style="list-style-type: decimal">
+<li><p>What is the extent of price variation between Uber and Lyft for
+rides that originate and terminate at the same location and are
+initiated at the same time? Are there any patterns or factors that
+contribute to the observed price variations between these ride-sharing
+services in such situations?</p></li>
+<li><p>Can we accurately predict the fare of a ride based on various
+factors such as the ride-hailing service provider, the time of day, cab
+type, and weather conditions? How do these factors interact with each
+other to impact the ride fare?</p></li>
+<li><p>How can we predict the surge pricing multiplier for Uber and Lyft
+rides in Boston, taking into account various variables such as time of
+day, day of the week, and weather conditions? What are the key factors
+driving the variation in surge pricing among these ride-sharing services
+in Boston?</p></li>
+<li><p>To what extent do the source and destination locations impact the
+cab prices in Boston, after controlling for factors such as distance and
+weather conditions? Can we identify any specific locations or geographic
+patterns that have a significant impact on cab prices in the city? How
+do these factors vary between Uber and Lyft?</p></li>
+</ol>
+</div>
 </div>
 <div id="exploratory-analysis" class="section level1">
 <h1>Exploratory Analysis</h1>

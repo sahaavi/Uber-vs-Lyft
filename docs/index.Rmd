@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 The data for this project was uploaded to [kaggle](https://www.kaggle.com/datasets/ravi72munde/uber-lyft-cab-prices) by the user RaviMunde and licensed under CC0: Public Domain, which allows for unrestricted use and distribution of the data. The data set we are analyzing includes simulated ride prices for Uber and Lyft, which were obtained through custom application queries collected using their respective API's. In parallel, additional data was also collected for weather conditions corresponding to the source destination for the cab rides. The data was collected for the interval from 2018-11-25 to 2018-12-18. A custom application was built in Scala to query data at regular intervals of 5 minutes for cab ride estimates and 1 hour for weather data. The data was then saved to DynamoDB. The chosen interval was to query as much data as possible without unnecessary redundancy. Finally, the data collected is stored into two separate CSV files: cab_rides.csv and weather.csv
 
-### Statistical Description
+## Statistical Description
 
 ```{r, echo=FALSE}
 cab_rides <- read.csv('../datasets/cab_rides.csv')
@@ -63,7 +63,7 @@ summary(weather[, sapply(weather, is.numeric)])
 
 It is worth noting that the data obtained through simulation may have certain limitations and scientific methods underlying it. Since the data was simulated, there is a possibility that it only provides a partial representation of the actual demand and supply for rides during the time period under consideration. This is because the simulated data may not accurately capture the usage and demand patterns for ride-sharing services across all areas in Boston. Furthermore, human behavior such as commuting patterns, differences in travel patterns between weekdays and weekends, and responses to weather conditions, which heavily influence the demand for ride-sharing services, may affect the accuracy of hypotheses based on locations. Another aspect to consider is that since the actual source and destination of rides are not known due to the simulated nature of the data, it may limit insight regarding location-based patterns.
 
-### Hypothesis
+## Hypothesis
 
 Using a combination of exploratory data analysis and creating predictive models, we want to address a number of scientific questions regarding ride-sharing services like Uber and Lyft in Boston.
 
