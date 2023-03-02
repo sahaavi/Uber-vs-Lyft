@@ -2,7 +2,7 @@
 title: "Data Proposal"
 author: "Avishek Saha and Noman Mohammad"
 output: pdf_document
-fontsize: 10pt
+fontsize: 10.5pt
 ---
 
 ```{r setup, include=FALSE}
@@ -13,12 +13,8 @@ The data for this project was uploaded to [kaggle](https://www.kaggle.com/datase
 
 ### Statistical Description
 
-```{r, echo=FALSE}
-cab_rides <- read.csv('datasets/cab_rides.csv')
-weather <- read.csv('datasets/weather.csv')
-```
+The **cab_rides.csv** consists of 10 variables and 693,071 rows:  
 
-The cab_rides.csv consists of 10 variables and 693,071 rows:  
 -   `cab_type`(String): Represents the type of ride sharing service used, such as Uber or Lyft.  
 -   `destination`(String): Drop off location of the ride.  
 -   `distance`(Float): Distance traveled from the pickup location to the drop off location in miles.  
@@ -27,17 +23,11 @@ The cab_rides.csv consists of 10 variables and 693,071 rows:
 -   `price`(Float): Cost of the ride in US dollars.  
 -   `product_id`(String): An unique identifier for cab-type.  
 -   `source`(String): Pickup location of the ride.  
--   `surge_multiplier`(String): How much the ride price was multiplied based on current ride demand. Default `surge_multiplier` is 1.  
+-   `surge_multiplier`(String): How much the ride price was multiplied based on current ride demand. Default is 1.  
 -   `time_stamp`(Long): Time of the ride as an epoch time stamp in seconds.  
 
-**Summary of the cab_rides dataset**
+The **weather.csv** consists of 8 variables and 6276 rows:  
 
-```{r, echo=FALSE }
-# Summary of the cab_rides dataset
-summary(cab_rides[, sapply(cab_rides, is.numeric)])
-```
-
-The weather.csv consists of 8 variables and 6276 rows:    
 -   `clouds`(Float): Percentage of cloud cover in the sky at the time the weather was recorded.  
 -   `humidity`(Float): Percentage of humidity in the air at the time the weather was recorded.  
 -   `time_stamp`(Float): Time when the weather was recorded, as an epoch time stamp in seconds.  
@@ -46,13 +36,6 @@ The weather.csv consists of 8 variables and 6276 rows:
 -   `pressure`(Float): Air pressure in millibars at the time the weather was recorded.  
 -   `wind`(Float): Wind speed in miles per hour at the time the weather was recorded.  
 -   `rain`(Float): Amount of rain in inches for the last hour at the time the weather was recorded.  
-
-**Summary of the weather dataset**
-
-```{r, echo=FALSE}
-# Summary of the weather dataset
-summary(weather[, sapply(weather, is.numeric)])
-```
 
 It is worth noting that the data obtained through simulation may have certain limitations and scientific methods underlying it. Since the data was simulated, there is a possibility that it only provides a partial representation of the actual demand and supply for rides during the time period under consideration. This is because the simulated data may not accurately capture the usage and demand patterns for ride-sharing services across all areas in Boston. Furthermore, human behavior such as commuting patterns, differences in travel patterns between weekdays and weekends, and responses to weather conditions, which heavily influence the demand for ride-sharing services, may affect the accuracy of hypotheses based on locations. Another aspect to consider is that since the actual source and destination of rides are not known due to the simulated nature of the data, it may limit insight regarding location-based patterns.
 
