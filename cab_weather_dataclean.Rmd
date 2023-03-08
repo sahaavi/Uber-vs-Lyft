@@ -10,8 +10,8 @@ library(dplyr)
 library(lubridate)
 library(tidyr)
 
-cab <- read.csv('cab_rides.csv')
-weather <- read.csv('weather.csv')
+cab <- read.csv('datasets/cab_rides.csv')
+weather <- read.csv('datasets/weather.csv')
 
 head(weather)
 head(cab)

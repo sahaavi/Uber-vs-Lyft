@@ -24,6 +24,9 @@
 .Rproj.user/
 *.Rproj
 
+# Python files
+*.ipynb
+
 # produced vignettes
 vignettes/*.html
 vignettes/*.pdf

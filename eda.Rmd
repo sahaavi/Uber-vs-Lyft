@@ -16,7 +16,7 @@ rides <-read.csv("datasets/cab_rides.csv")
 weather <- read.csv("datasets/weather.csv")
 ```
 
-### Exploring the datasets
+### Exploratory Analysis
 
 ```{r}
 head(rides, 3)
@@ -25,6 +25,114 @@ head(rides, 3)
 ```{r}
 head(weather, 3)
 ```
+
+##### Structure of datesets
+
+```{r}
+str(rides) # structure of cab_rides dataset
+```
+
+```{r}
+str(weather) # structure of weather dataset
+```
+
+In both of the dataset time_stamp stored as integer which we will covnert into date_time in feature engineering. 
+
+##### Summary Statistics
+
+Summary statistics of cab_rides dataset
+
+```{r}
+by(rides, rides$cab_type, summary)
+```
+
+By analyzing the summary statistics, We can observe that the minimum ride distance is shorter for Lyft compared to Uber, while the maximum ride distance is longer for Uber compared to Lyft. However, both services have similar average ride distances. Uber has a larger number of rides than Lyft, with a difference of $385663- 307408=78255$. The price variable in the cab_rides dataset for Uber cab_type has 55095 NA values. The pricing of Lyft rides varies more than that of Uber rides, and the mean and median values for ride prices are different between the two services. In Uber, the surge_multiplier remains constant for rides, while it varies for Lyft rides.
+
+Lets checkout the rows where price is missing.
+
+```{r}
+sum(is.na(rides$price))/length(rides$price)*100 # percentage of missing price values
+```
+
+```{r}
+missing_price <- rides[is.na(rides$price), ]
+head(missing_price, 3)
+```
+
+```{r}
+hist(missing_price$distance)
+```
+
+So the missing data of price varies among different prices. So, let's checkout the prices for distance 1 mile.
+
+```{r}
+price_for_distance_1 <- rides[rides$distance == 1, "price"]
+max(price_for_distance_1, na.rm=TRUE)
+min(price_for_distance_1, na.rm=TRUE)
+```
+
+As the price varies a lot for same distance and the percentage of missing value for price is 7.95%. So, instead of impute the price, we will remove the rows where price is missing.  
+
+Summary statistics of weather dataset
+
+```{r}
+summary(weather)
+```
+
+By analyzing the summary statistics, we can observe that only the rain column has 5382 NA values. 
+
+```{r}
+temp_d <- density(weather$temp)
+plot(temp_d, main="Kernel Density of Temperature")
+polygon(temp_d, col="red", border="blue")
+```
+
+
+# To-do's
+the dataset time_stamp stored as integer which we will covnert into date_time in feature engineering
+we will remove the rows where price is missing
+ 
+### Data Preprocessing
+
+### Feature Engineering
+
+Changing time_stamp from UNIX epoch to date
+
+```{r}
+library(lubridate)
+rides$date_time <- as.POSIXct(rides$time_stamp/1000, origin="1970-01-01", tz="UTC")
+weather$date_time <- as.POSIXct(weather$time_stamp, origin="1970-01-01", tz="UTC")
+```
+
+Merge datasets to reflect same time for a location
+
+```{r}
+rides$merge_date <- paste(rides$source, format(rides$date_time, "%Y-%m-%d %H"), sep=" - ")
+weather$merge_date <- paste(weather$location, format(weather$date_time, "%Y-%m-%d %H"), sep=" - ")
+merged_df <- merge(rides, weather, by="merge_date", suffixes=c("", "_w"))
+```
+
+As the weather datetime is from every hour so we kept datetime from both the datasets while merged.
+
+```{r}
+head(merged_df, 3)
+```
+
+
+
+```{r}
+head(rides, 20)
+```
+
+
+
+
+
+
+
+
+
+
 
 ```{r}
 unique(rides$cab_type)
