@@ -2,7 +2,7 @@
 title: "Exploratory Data Analysis"
 author: "Avishek Saha"
 date: '2023-02-24'
-output: html_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -19,26 +19,10 @@ weather <- read.csv("datasets/weather.csv")
 ### Exploratory Analysis
 
 ```{r}
-head(rides, 3)
-```
-
-```{r}
-head(weather, 3)
-```
-
-##### Structure of datesets
-
-```{r}
 str(rides) # structure of cab_rides dataset
 ```
 
-```{r}
-str(weather) # structure of weather dataset
-```
-
-In both of the dataset time_stamp stored as integer which we will covnert into date_time in feature engineering. 
-
-##### Summary Statistics
+We see the overall the structure of our data is great, and aside from the time_stamp being in epoch format.
 
 Summary statistics of cab_rides dataset
 
@@ -46,7 +30,42 @@ Summary statistics of cab_rides dataset
 by(rides, rides$cab_type, summary)
 ```
 
-By analyzing the summary statistics, We can observe that the minimum ride distance is shorter for Lyft compared to Uber, while the maximum ride distance is longer for Uber compared to Lyft. However, both services have similar average ride distances. Uber has a larger number of rides than Lyft, with a difference of $385663- 307408=78255$. The price variable in the cab_rides dataset for Uber cab_type has 55095 NA values. The pricing of Lyft rides varies more than that of Uber rides, and the mean and median values for ride prices are different between the two services. In Uber, the surge_multiplier remains constant for rides, while it varies for Lyft rides.
+By analyzing the summary statistics, We can observe that the minimum ride distance is shorter for Lyft compared to Uber, while the maximum ride distance is longer for Uber compared to Lyft. However, both services have similar average ride distances. Uber has a larger number of rides than Lyft, with a difference of $385663- 307408=78255$. The price variable in the cab_rides dataset for Uber cab_type has 55095 NA values. The pricing of Lyft rides varies more than that of Uber rides, and the mean and median values for ride prices are different between the two services. Uber on average had lower overall pricing (ignoring distance) in comparison to Lyft. In Uber, the surge_multiplier remains constant for rides, while it varies for Lyft rides.
+
+Let's check the time range of the dataset.
+
+```{r}
+min_time <- min(rides$time_stamp)
+max_time <- max(rides$time_stamp)
+as.POSIXct(min_time/1000, origin="1970-01-01", tz="UTC")
+as.POSIXct(max_time/1000, origin="1970-01-01", tz="UTC")
+```
+
+As the rides accounted for took place over a 22 day window in 2018 between November 26th and December 18th. This information obviously wouldn't be telling for current rideshare conditions, although, could act as an interesting benchmark to compare post-pandemic Uber/Lyft trends to in future works.
+
+Let's look at the unique types of cab
+
+```{r}
+unique(rides[rides$cab_type == "Uber", "name"])
+unique(rides[rides$cab_type == "Lyft", "name"])
+```
+
+Both Uber and Lyft has 6 unique types of cab type. 
+
+Check the unique locations in the dataset.
+
+```{r}
+length(unique(rides$source))
+length(unique(rides$destination))
+```
+
+Both source and destination has 12 unique locations. Check whether they are same or not
+
+```{r}
+setequal(unique(rides$source), unique(rides$destination))
+```
+
+So, there are 12 locations.
 
 Lets checkout the rows where price is missing.
 
@@ -71,7 +90,81 @@ max(price_for_distance_1, na.rm=TRUE)
 min(price_for_distance_1, na.rm=TRUE)
 ```
 
-As the price varies a lot for same distance and the percentage of missing value for price is 7.95%. So, instead of impute the price, we will remove the rows where price is missing.  
+Let's create a bivariate plot of distance and price to get a better understanding of the price variation based on distance.
+
+```{r}
+library(ggplot2)
+
+ggplot(data = rides, aes(x = distance, y = price, color = cab_type)) +
+  geom_point() +
+  labs(x = "Distance (miles)", y = "Price (USD)", title = "Distance vs Price") +
+  scale_color_manual(values = c("Uber" = "blue", "Lyft" = "orange"))
+```
+
+Seems there are no correlation between price and distance. As the price varies a lot for same distance, so neither Uber or Lyft specifically targeted rides based off overall distance or price. The percentage of missing value for price is 7.95%. Therefore, instead of impute the price, we will remove the rows where price is missing. 
+
+Check correlation by Scatterplot Matrix of price, distance, surge_multiplier and time_stamp.
+
+```{r}
+pairs(~price+distance+surge_multiplier+time_stamp,data=rides,
+   main="Scatterplot Matrix")
+```
+
+Seems unclear let's check the correlation matrix.
+
+```{r}
+cor(rides[, c(1,3,6,7)])
+```
+
+We can see that there are no strong correlation among price, distance, time and surge_multiplier.
+
+Distribution plot of different variables form cab_rides dataset.
+
+```{r}
+distance_d <- density(rides$distance)
+plot(distance_d, main="Kernel Density of Distance")
+polygon(distance_d, col="red", border="blue")
+```
+
+```{r}
+price_d <- density(rides$price, na.rm=TRUE)
+plot(price_d, main="Kernel Density of Price")
+polygon(price_d, col="red", border="blue")
+```
+
+```{r}
+library(fitdistrplus)
+library(logspline)
+descdist(rides$distance, discrete = FALSE)
+```
+
+```{r}
+fit.distance.weibull <- fitdist(rides$distance, "weibull")
+fit.distance.norm <- fitdist(rides$distance, "norm")
+plot(fit.distance.norm)
+plot(fit.distance.weibull)
+```
+
+```{r}
+fit.distance.weibull$aic
+fit.distance.norm$aic
+```
+
+From above plots we can see that weibull distribution better fits the data than lognormal. AIC values also indicates that. This make sense because the distance distribution shape isn't quite comprehensible and the Weibull distribution is a continuous probability distribution that can fit an extensive range of distribution shapes.  
+As price has the same distribution shape so we're considering weibull distribution also fits better the data than lognormal.
+
+
+```{r}
+descdist(rides[rides$cab_type == "Lyft", "surge_multiplier"], discrete = FALSE)
+```
+
+Seems it doesnt follow any distribution pattern.
+
+```{r}
+str(weather) # structure of weather dataset
+```
+
+In both of the dataset time_stamp stored as integer which we will covnert into date_time in feature engineering. 
 
 Summary statistics of weather dataset
 
@@ -81,30 +174,52 @@ summary(weather)
 
 By analyzing the summary statistics, we can observe that only the rain column has 5382 NA values. 
 
+Let's look at the distribution of different variables in weather dataset.
+
 ```{r}
-temp_d <- density(weather$temp)
-plot(temp_d, main="Kernel Density of Temperature")
-polygon(temp_d, col="red", border="blue")
+library(ggplot2)
+require(reshape2)
+
+melt.weather <- melt(weather)
+
+ggplot(data = melt.weather[melt.weather$variable != "time_stamp", ], aes(x = value)) + 
+  stat_density() + 
+  facet_wrap(~variable, scales = "free")
 ```
 
+Check correlation from scatterplot matrix.
 
-# To-do's
-the dataset time_stamp stored as integer which we will covnert into date_time in feature engineering
-we will remove the rows where price is missing
+```{r}
+pairs(~temp+clouds+pressure+rain+humidity+wind,data=weather,
+   main="Scatterplot Matrix")
+```
+
+Seems there are no strong correlation among these variables.
  
 ### Data Preprocessing
+
+Remove the rows from cab_rides dataset where price is missing.
+
+```{r}
+rides <- rides[!is.na(rides$price),]
+```
+
+Imputing rain NA's with 0.
+
+```{r}
+weather$rain <- ifelse(is.na(weather$rain), 0, weather$rain)
+```
 
 ### Feature Engineering
 
 Changing time_stamp from UNIX epoch to date
 
 ```{r}
-library(lubridate)
 rides$date_time <- as.POSIXct(rides$time_stamp/1000, origin="1970-01-01", tz="UTC")
 weather$date_time <- as.POSIXct(weather$time_stamp, origin="1970-01-01", tz="UTC")
 ```
 
-Merge datasets to reflect same time for a location
+Merge datasets to reflect same time for a location.
 
 ```{r}
 rides$merge_date <- paste(rides$source, format(rides$date_time, "%Y-%m-%d %H"), sep=" - ")
@@ -118,52 +233,43 @@ As the weather datetime is from every hour so we kept datetime from both the dat
 head(merged_df, 3)
 ```
 
+################ we can again check the correlation between weather variables with distance and price and drop some of them which doesnt have any correlation.
 
+### Hypothesis
 
-```{r}
-head(rides, 20)
-```
-
-
-
-
-
-
-
-
-
-
-
-```{r}
-unique(rides$cab_type)
-```
-
-```{r}
-sort(unique(rides$distance))
-```
-
-```{r}
-unique(rides$name)
-```
-
-```{r}
-sort(unique(rides$price))
-```
-
+1. What is the extent of price variation between Uber and Lyft for rides that originate and terminate at
+the same location and are initiated at the same time? Are there any patterns or factors that contribute
+to the observed price variations between these ride-sharing services in such situations?
 
 ```{r}
 library(dplyr)
 
-# Group the data by cab_type, time_stamp, destination, and source
-grouped_data <- rides %>% 
-  group_by(cab_type, time_stamp, destination, source) %>% 
-  summarise(n_rows = n())
+same_loc_time <- rides %>%
+  group_by(source, destination, time_stamp) %>%
+  filter(n_distinct(cab_type) > 1)
 
-# Filter the groups with more than one row
-duplicates <- grouped_data %>% 
-  filter(n_rows > 1)
-
-# Print the duplicated rows
-print(duplicates)
-
+same_loc_time
 ```
+
+```{r echo=FALSE}
+same_loc_time[same_loc_time$source == "North Station" &
+                same_loc_time$destination == "Haymarket Square" &
+                #same_loc_time$merge_date == "North Station - 2018-12-18 19",
+                same_loc_time$time_stamp == 1543204000000,
+              "cab_type"]
+```
+
+As there are no case where rides originate and terminate at the same location and are initiated at the same time we are not able to see the price variation between the ride sharing services based of that.
+
+2. Can we accurately predict the fare of a ride based on various factors such as the ride-hailing service
+provider, the time of day, cab type, and weather conditions? How do these factors interact with each
+other to impact the ride fare?
+
+As the the weibull distribution fits better in fare data, so we will try to model this using Generalized Linear Model (GLM) with Weibull family. One other option we may consider is Weibull Regression.
+After modeling  using graphs and insights from the model result we will explore interaction of these factors with each other taht impact the ride fare.
+
+3. How can we predict the surge pricing multiplier for Uber and Lyft rides in Boston, taking into account
+various variables such as time of day, day of the week, and weather conditions? What are the key
+factors driving the variation in surge pricing among these ride-sharing services in Boston?
+
+We saw that for uber the surge multiplier is always 1. So, we might focus on Lyft only. But that doesnt follow any distribution. So, we've to apply different model and check which performs well.
